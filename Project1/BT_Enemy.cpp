@@ -1,108 +1,54 @@
 #include "BT_Enemy.hpp"
 
-#include <unordered_map>
-#include <string>
-#include <iostream>
-#include <memory>
-
-enum class NodeState { SUCCESS, FAILURE, RUNNING };
-
-class BTNode {
-public:
-    virtual ~BTNode() = default;
-    virtual NodeState execute() = 0;
+BTEnemy::BTEnemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
+    pos = { x,y };
+    initialPos = { x,y };
+    shape.setPosition(pos);
+    detectionRadius = 100;
 };
 
+void BTEnemy::movement() {
+    static int currentWaypoint = 0;
+    static sf::Vector2f waypoints[4] = { sf::Vector2f(initialPos.x - 150, initialPos.y - 150), sf::Vector2f(initialPos.x + 150, initialPos.y + 150),
+    sf::Vector2f(initialPos.x - 150, initialPos.y + 150), sf::Vector2f(initialPos.x + 150, initialPos.y - 150) };
+    sf::Vector2f target = waypoints[currentWaypoint];
+    sf::Vector2f direction = target - pos;
+    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-class Blackboard {
-private:
-    std::unordered_map<std::string, int> data;
-public:
-    void SetValue(const std::string& key, int value) {
-        data[key] = value;
+    if (distance < 5.0f) {
+        currentWaypoint = (currentWaypoint + 1) % 4;
     }
-    int GetValue(const std::string& key) {
-        return data[key];
+    else {
+        direction /= distance;
+        pos += direction * 0.7f;
     }
-};
 
-class SequenceNode : public BTNode {
-private:
-    std::vector<std::unique_ptr<BTNode>> children;
-public:
-    void AddChild(std::unique_ptr<BTNode> child) {
-        children.push_back(std::move(child));
-    }
-    NodeState execute() override {
-        for (auto& child : children) {
-            if (child->execute() == NodeState::FAILURE) {
-                return NodeState::FAILURE;
-            }
-        }
-        return NodeState::SUCCESS;
-    }
-};
+    shape.setPosition(pos);
+}
 
-class SelectorNode : public BTNode {
-private:
-    std::vector<std::unique_ptr<BTNode>> children;
-public:
-    void AddChild(std::unique_ptr<BTNode> child) {
-        children.push_back(std::move(child));
-    }
-    NodeState execute() override {
-        for (auto& child : children) {
-            if (child->execute() == NodeState::SUCCESS) {
-                return NodeState::SUCCESS;
-            }
-        }
-        return NodeState::FAILURE;
-    }
-};
+bool BTEnemy::detectPlayer(sf::Vector2f playerPos) {
+    float distance = sqrt(pow(playerPos.x - pos.x, 2) + pow(playerPos.y - pos.y, 2));
+    return (distance < detectionRadius);
+}
 
-class ConditionNode : public BTNode {
-private:
-    Blackboard& blackboard;
-    std::string key;
-    int expectedValue;
-public:
-    ConditionNode(Blackboard& bb, const std::string& key, int value) : blackboard(bb), key(key), expectedValue(value) {}
-    NodeState execute() override {
-        return (blackboard.GetValue(key) == expectedValue) ? NodeState::SUCCESS : NodeState::FAILURE;
+void BTEnemy::shoot(sf::Vector2f playerPos) {
+    std::shared_ptr<Projectile> projectile;
+    projectile->target = playerPos;
+    projectile->direction = projectile->target - pos;
+    projectile->distance = std::sqrt(projectile->direction.x * projectile->direction.x + projectile->direction.y * projectile->direction.y);
+    projectile->shape.setPosition(pos);
+    projectiles.push_back(projectile);
+}
+
+void BTEnemy::moveProjectiles() {
+    for (auto& projectile : projectiles) {
+        projectile->direction /= projectile->distance;
+        //projectile->shape.setPosition(projectile->shape.getPosition() += projectile->direction * 0.7f);
+        projectile->shape.move(projectile->direction * 0.7f);
     }
-};
+}
 
-//class ActionNode : public BTNode {
-//private:
-//    std::string actionName;
-//public:
-//    ActionNode(std::string name) : actionName(name) {}
-//    NodeState execute() override {
-//        std::cout << "Action: " << actionName << std::endl;
-//        return NodeState::SUCCESS;
-//    }
-//};
-//
-//class PrintMessageNode : public BTNode {
-//private:
-//    std::string message;
-//public:
-//    PrintMessageNode(std::string name) : message(name) {}
-//    NodeState execute() override {
-//        std::cout << "Message: " << message << std::endl;
-//        return NodeState::SUCCESS;
-//    }
-//};
-
-//class InvertNode : public BTNode {
-//private:
-//    std::unique_ptr<BTNode> child;
-//public:
-//    InvertNode(std::unique_ptr<BTNode> _child) : child(std::move(_child)) {};
-//    NodeState execute() override {
-//        if (child->execute() == NodeState::SUCCESS) {
-//            return NodeState::FAILURE;
-//        }
-//        return NodeState::SUCCESS;
-//    }
-//};
+void BTEnemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) {
+    movement();
+    shoot(playerPos);                // CA CRASH ICI
+}

@@ -2,6 +2,7 @@
 #include "Player.hpp"
 #include "PathFinding.hpp"
 #include "Enemy.hpp"
+#include "BT_Enemy.hpp"
 #include "Grid.hpp"
 #include <vector>
 using namespace std;
@@ -19,8 +20,10 @@ int main() {
     players.push_back(&player);
     std::vector<Entity*> enemies;
     Enemy enemy1(375,380,20);
+    BTEnemy btEnemy(500.f,200.f,20);
     //Enemy enemy2(500,100,20);
     //Enemy enemy3(300,100,20);
+    enemies.push_back(&btEnemy);
     enemies.push_back(&enemy1);/*
     enemies.push_back(&enemy2);
     enemies.push_back(&enemy3);*/
@@ -48,11 +51,13 @@ int main() {
         for (auto& enemy : enemies) {
             enemy->update(deltaTime, grid, players, player.pos);
         }
+        btEnemy.moveProjectiles();
 
         window.clear();
         grid.draw(window);
         window.draw(enemy1.circle);
         window.draw(player.shape);
+        window.draw(player.atkRadius);
         for (const auto& enemy : enemies) {
             if (enemy->isAlive()) {
                 window.draw(enemy->shape);

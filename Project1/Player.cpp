@@ -3,12 +3,18 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
 #include "Enemy.hpp"
+#include "BT_Enemy.hpp"
 Player::Player(float x, float y, int hp) : Entity(x, y, sf::Color::Blue, hp), attackTimer(0.f) {
     pos = { x,y };
     shape.setSize({ 20,20 });
+    atkRadius.setRadius(100);
+    atkRadius.setFillColor(sf::Color::Transparent);
+    atkRadius.setOutlineColor(sf::Color::Red);
+    atkRadius.setOutlineThickness(1);
 }
 
 void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, sf::Vector2f playerPos) {
+    atkRadius.setPosition(pos.x + shape.getSize().x /2 - atkRadius.getRadius(), pos.y + shape.getSize().y / 2 - atkRadius.getRadius());
     sf::Vector2f movement(0.f, 0.f);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) movement.y -= SPEED * deltaTime;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) movement.y += SPEED * deltaTime;
@@ -41,8 +47,8 @@ void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, s
 
 void Player::attack(std::vector<Entity*>enemies) {
 	for (auto& enemy : enemies) {
-        if (enemy = dynamic_cast<Enemy*>(enemy)) {
-            if (enemy->isAlive() && shape.getGlobalBounds().intersects(enemy->shape.getGlobalBounds())) {
+        if (enemy = dynamic_cast<Entity*>(enemy)) {
+            if (enemy->isAlive() && atkRadius.getGlobalBounds().intersects(enemy->shape.getGlobalBounds())) {
                 enemy->takeDamage(DAMAGE);
                 std::cout << "Enemy HP: " << enemy->health << std::endl;
             }
