@@ -1,5 +1,32 @@
 #include "BT_Enemy.hpp"
 
+Projectile::Projectile(sf::Vector2f targ, sf::Vector2f originPos) : target(targ) {
+    direction = target - originPos;
+    distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    shape.setPosition(originPos);
+    shape.setRadius(10);
+    shape.setFillColor(sf::Color::Red);
+}
+
+void Projectile::update(std::vector<Entity*> players, Grid& grid) {
+    direction = target - shape.getPosition();
+    distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    direction /= distance;
+    shape.setPosition(shape.getPosition() + direction * 4.f);
+
+    if (players[0]->shape.getGlobalBounds().intersects(shape.getGlobalBounds())) {
+        state = false;
+        players[0]->health -= 1;
+        std::cout << "hit" << std::endl;
+    }
+
+    if (!grid.getCell(shape.getPosition().x/CELL_SIZE, shape.getPosition().y / CELL_SIZE).walkable) {
+        if (shape.getGlobalBounds().intersects(grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).shape.getGlobalBounds())) {
+            state = false;
+        }
+    }  
+}
+
 BTEnemy::BTEnemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
     pos = { x,y };
     initialPos = { x,y };
@@ -31,24 +58,23 @@ bool BTEnemy::detectPlayer(sf::Vector2f playerPos) {
     return (distance < detectionRadius);
 }
 
-void BTEnemy::shoot(sf::Vector2f playerPos) {
-    std::shared_ptr<Projectile> projectile;
-    projectile->target = playerPos;
-    projectile->direction = projectile->target - pos;
-    projectile->distance = std::sqrt(projectile->direction.x * projectile->direction.x + projectile->direction.y * projectile->direction.y);
-    projectile->shape.setPosition(pos);
-    projectiles.push_back(projectile);
-}
-
-void BTEnemy::moveProjectiles() {
-    for (auto& projectile : projectiles) {
-        projectile->direction /= projectile->distance;
-        //projectile->shape.setPosition(projectile->shape.getPosition() += projectile->direction * 0.7f);
-        projectile->shape.move(projectile->direction * 0.7f);
-    }
+void BTEnemy::shoot(std::vector<Entity*> players) {
+    projectiles.emplace_back(std::make_shared<Projectile>(players[0]->pos, pos));
 }
 
 void BTEnemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) {
     movement();
-    shoot(playerPos);                // CA CRASH ICI
+    shootTimer += deltaTime;
+    if (shootTimer > shootCd) {
+        shoot(players);
+        shootTimer = 0;
+    }
+    else {
+        for (int i = 0; i < projectiles.size(); i++) {
+            projectiles[i]->update(players, grid);
+            if (projectiles[i]->distance < 5.f || projectiles[i]->state == false) {
+                projectiles.erase(projectiles.begin() + i);
+            }
+        }
+    }
 }

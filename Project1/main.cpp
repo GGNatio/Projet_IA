@@ -20,7 +20,7 @@ int main() {
     players.push_back(&player);
     std::vector<Entity*> enemies;
     Enemy enemy1(375,380,20);
-    BTEnemy btEnemy(500.f,200.f,20);
+    BTEnemy btEnemy(600.f,300.f,20);
     //Enemy enemy2(500,100,20);
     //Enemy enemy3(300,100,20);
     enemies.push_back(&btEnemy);
@@ -45,13 +45,18 @@ int main() {
                 window.close();
         }
 
+        for (int i = 0; i < enemies.size(); i++) {
+            if (!enemies[i]->isAlive()) {
+                enemies.erase(enemies.begin() + i);
+            }
+        }
+
         player.update(deltaTime, grid, enemies, player.pos);
         view.setCenter(player.shape.getPosition());
         window.setView(view);
         for (auto& enemy : enemies) {
             enemy->update(deltaTime, grid, players, player.pos);
         }
-        btEnemy.moveProjectiles();
 
         window.clear();
         grid.draw(window);
@@ -62,6 +67,9 @@ int main() {
             if (enemy->isAlive()) {
                 window.draw(enemy->shape);
             }
+        }
+        for (auto& projectile : btEnemy.projectiles) {
+            window.draw(projectile->shape);
         }
         window.display();
     }

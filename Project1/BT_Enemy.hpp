@@ -76,13 +76,15 @@ public:
 
 class Projectile {
 public:
+    bool state = true;
     sf::CircleShape shape;
-    sf::Vector2f speed;
-    sf::Vector2f target;
+    sf::Vector2f target = {0,0};
     sf::Vector2f direction;
-    float distance;
+    float distance = 0;
 
-    Projectile() {}
+    Projectile(sf::Vector2f targ, sf::Vector2f originPos);
+
+    void update(std::vector<Entity*> players, Grid& grid);
 };
 
 class BTEnemy : public Entity {
@@ -91,6 +93,8 @@ public:
     sf::Vector2f initialPos;
     float detectionRadius;
     std::vector<std::shared_ptr<Projectile>> projectiles;
+    float shootTimer = 0;
+    float shootCd = 1;
 
 	BTEnemy(float x, float y, int hp);
 
@@ -98,8 +102,7 @@ public:
 
     void movement();
     bool detectPlayer(sf::Vector2f playerPos);
-    void shoot(sf::Vector2f playerPos);
-    void moveProjectiles();
+    void shoot(std::vector<Entity*> players);
     void getAway();
 };
 

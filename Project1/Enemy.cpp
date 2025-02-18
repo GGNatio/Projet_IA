@@ -12,10 +12,10 @@ Enemy::Enemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
 void Enemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) {
     switch (currentState) {
     case PATROL: {
-        cout << "dedans V2";
+        
         patrol();
         if (detectPlayer(players[0]->pos)) {
-            cout << "Found"; 
+            
             currentState = CHASE;
         }
         break;

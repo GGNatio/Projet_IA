@@ -11,9 +11,11 @@ Player::Player(float x, float y, int hp) : Entity(x, y, sf::Color::Blue, hp), at
     atkRadius.setFillColor(sf::Color::Transparent);
     atkRadius.setOutlineColor(sf::Color::Red);
     atkRadius.setOutlineThickness(1);
+    health = 40;
 }
 
 void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, sf::Vector2f playerPos) {
+    
     atkRadius.setPosition(pos.x + shape.getSize().x /2 - atkRadius.getRadius(), pos.y + shape.getSize().y / 2 - atkRadius.getRadius());
     sf::Vector2f movement(0.f, 0.f);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) movement.y -= SPEED * deltaTime;
