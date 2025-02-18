@@ -8,7 +8,7 @@ class Entity {
 public:
     RectangleShape shape;
     Vector2f velocity;
-    Sprite sprite;
+    
     Texture textSprite;
     int health;
     Vector2f pos;

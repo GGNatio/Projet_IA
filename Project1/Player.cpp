@@ -6,7 +6,7 @@
 #include "BT_Enemy.hpp"
 Player::Player(float x, float y, int hp) : Entity(x, y, sf::Color::Blue, hp), attackTimer(0.f) {
     pos = { x,y };
-    shape.setSize({ 20,20 });
+    shape.setSize({ 50,50 });
 
     atkRadius.setRadius(100);
     atkRadius.setFillColor(sf::Color::Transparent);
@@ -15,9 +15,11 @@ Player::Player(float x, float y, int hp) : Entity(x, y, sf::Color::Blue, hp), at
     health = 40;
 
     textSprite.loadFromFile("../assets/perso.png");
-    sprite.setScale({ 0.25f,0.25f });
+    shape.setTexture(&textSprite);
+    /*sprite.setScale({ 0.25f,0.25f });
     sprite.setTexture(textSprite);
-    sprite.setPosition(pos.x-shape.getSize().x, pos.y - shape.getSize().y);
+    sprite.setOrigin(shape.getSize().x / 2, shape.getSize().y / 2);
+    sprite.setPosition(pos.x-shape.getSize().x, pos.y - shape.getSize().y)*/;
 
 }
 
@@ -47,7 +49,7 @@ void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, s
         isWalkable(newBounds.left - 2, newBounds.top + newBounds.height + 2) &&
         isWalkable(newBounds.left + newBounds.width + 2, newBounds.top + newBounds.height + 2)) {
         shape.move(movement);
-        sprite.move(movement);
+        
         pos = shape.getPosition();
         
         

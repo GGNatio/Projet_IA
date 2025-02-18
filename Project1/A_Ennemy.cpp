@@ -9,8 +9,7 @@ A_Ennemy::A_Ennemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) 
     currentState = PATROL;
     bool reversePath = false;
     textSprite.loadFromFile("../assets/a_enemy.png");
-    sprite.setScale({ 3,3 });
-    sprite.setTexture(textSprite);
+    shape.setTexture(&textSprite);
 }
 
 void A_Ennemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) {
@@ -134,7 +133,7 @@ void A_Ennemy::Path(Vector2i start, Vector2i end, Pathfinding& path, Grid& grid)
         }
     }
     shape.setPosition(pos);
-    sprite.setPosition(pos);
+    
 }
 
 

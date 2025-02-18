@@ -9,8 +9,7 @@ Enemy::Enemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
     currentState = PATROL;
     bool reversePath = false;
     textSprite.loadFromFile("../assets/patrol.png");
-    sprite.setScale({ 5,5 });
-    sprite.setTexture(textSprite);
+    shape.setTexture(&textSprite);
     
 }
 
@@ -141,7 +140,7 @@ void Enemy::patrol(Grid& grid) {
             e_direction = direction;
         }
         shape.move(direction * SPEED);
-        sprite.move(direction * SPEED);
+        
     }
     
     
@@ -158,7 +157,7 @@ void Enemy::chase(Vector2f playerPos) {
     }
 
     shape.move(direction*SPEED);
-    sprite.move(direction * SPEED);
+    
 }
 
 void Enemy::search(sf::Vector2f lastPlayerPos, float deltaTime) {

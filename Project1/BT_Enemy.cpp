@@ -33,9 +33,7 @@ BTEnemy::BTEnemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
     shape.setPosition(pos);
     detectionRadius = 100;
     textSprite.loadFromFile("../assets/blob.png");
-    sprite.setScale({ 3,3 });
-    sprite.setTexture(textSprite);
-    sprite.setPosition(pos);
+    shape.setTexture(&textSprite);
 };
 void BTEnemy::rayCasting(Grid& grid, RenderWindow& window) {
 
@@ -126,7 +124,7 @@ void BTEnemy::movement() {
     }
 
     shape.move(direction);
-    sprite.move(direction);
+    
     
 }
 
