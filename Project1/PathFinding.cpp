@@ -53,10 +53,10 @@ std::vector<sf::Vector2i> Pathfinding::findPath(Grid& grid, sf::Vector2i start, 
 
             if (neighborPos.x < 0 || neighborPos.x >= GRID_WIDTH || neighborPos.y < 0 || neighborPos.y >= GRID_HEIGHT)
                 continue;
-            if (grid.getCell(neighborPos.y, neighborPos.x).walkable != true) continue;
+            if (!grid.getCell(neighborPos.y, neighborPos.x).walkable) continue;
 
             if ((dir.x != 0 && dir.y != 0) &&
-                (grid.getCell(neighborPos.y, neighborPos.x).walkable != true) /*|| grid.getCell(neighborPos.y,current->position.x).*/)
+                (!grid.getCell(current->position.y, neighborPos.x).walkable ) || !grid.getCell(neighborPos.y,current->position.x).walkable )
                 continue;
 
             int newGCost = current->gCost + ((dir.x != 0 && dir.y != 0) ? 14 : 10); // 10 for straight, 14 for diagonal

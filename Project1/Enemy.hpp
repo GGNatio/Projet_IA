@@ -32,9 +32,9 @@ public:
     Vector2i previousEnd;
     CircleShape circle;
 
-    void Path(Vector2i start, Vector2i end, Pathfinding& path, Grid& grid);
+    
     bool detectPlayer(Vector2f playerPos);
-    void patrol();
+    void patrol(Grid& grid);
     void chase(sf::Vector2f playerPos);
     void search(sf::Vector2f lastPlayerPos, float deltaTime);
 

@@ -18,7 +18,7 @@ void Enemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf
     switch (currentState) {
     case PATROL: {
         
-        patrol();
+        patrol(grid);
         if (detectPlayer(players[0]->pos)) {
             lastPlayerPosition = players[0]->pos;
             currentState = CHASE;
@@ -123,23 +123,26 @@ void Enemy::rayCasting(Grid& grid, RenderWindow& window) {
 }
 
 
-void Enemy::patrol() {
+void Enemy::patrol(Grid& grid) {
+
     static int currentWaypoint = 0;
     static sf::Vector2f waypoints[4] = { sf::Vector2f(100, 300), sf::Vector2f(500, 100), sf::Vector2f(100, 300), sf::Vector2f(500, 300) };
     sf::Vector2f target = waypoints[currentWaypoint];
     sf::Vector2f direction = target - pos;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-
-    if (distance < 5.0f) {
-        currentWaypoint = (currentWaypoint + 1) % 4;
+    if (grid.getCell(pos.x / CELL_SIZE, pos.y / CELL_SIZE).walkable == true) {
+        if (distance < 5.0f) {
+            currentWaypoint = (currentWaypoint + 1) % 4;
+        }
+        else {
+            direction /= distance;
+            pos += direction * 0.2f;
+            e_direction = direction;
+        }
+        shape.move(direction * SPEED);
+        sprite.move(direction * SPEED);
     }
-    else {
-        direction /= distance;
-        pos += direction * 0.2f;
-        e_direction = direction;
-    }
-    shape.move(direction*SPEED);
-    sprite.move(direction*SPEED);
+    
     
 }
 
