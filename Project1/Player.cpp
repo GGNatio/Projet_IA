@@ -7,16 +7,25 @@
 Player::Player(float x, float y, int hp) : Entity(x, y, sf::Color::Blue, hp), attackTimer(0.f) {
     pos = { x,y };
     shape.setSize({ 20,20 });
+
     atkRadius.setRadius(100);
     atkRadius.setFillColor(sf::Color::Transparent);
     atkRadius.setOutlineColor(sf::Color::Red);
     atkRadius.setOutlineThickness(1);
     health = 40;
+
+    textSprite.loadFromFile("../assets/perso.png");
+    sprite.setScale({ 0.25f,0.25f });
+    sprite.setTexture(textSprite);
+    sprite.setPosition(pos.x-shape.getSize().x, pos.y - shape.getSize().y);
+
 }
 
 void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, sf::Vector2f playerPos) {
     
+
     atkRadius.setPosition(pos.x + shape.getSize().x /2 - atkRadius.getRadius(), pos.y + shape.getSize().y / 2 - atkRadius.getRadius());
+
     sf::Vector2f movement(0.f, 0.f);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) movement.y -= SPEED * deltaTime;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) movement.y += SPEED * deltaTime;
@@ -25,6 +34,7 @@ void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, s
 
     sf::Vector2f newPosition = shape.getPosition() + movement;
     sf::FloatRect newBounds(newPosition, shape.getSize());
+    
 
     auto isWalkable = [&](float x, float y) {
         int gridX = static_cast<int>(x / CELL_SIZE);
@@ -37,7 +47,10 @@ void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, s
         isWalkable(newBounds.left - 2, newBounds.top + newBounds.height + 2) &&
         isWalkable(newBounds.left + newBounds.width + 2, newBounds.top + newBounds.height + 2)) {
         shape.move(movement);
+        sprite.move(movement);
         pos = shape.getPosition();
+        
+        
     }
 
     attackTimer += deltaTime;
@@ -46,7 +59,9 @@ void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, s
         attackTimer = 0.f;
     }
 }
+void Player::rayCasting(Grid& grid, RenderWindow& window) {
 
+}
 void Player::attack(std::vector<Entity*>enemies) {
 	for (auto& enemy : enemies) {
         if (enemy = dynamic_cast<Entity*>(enemy)) {
