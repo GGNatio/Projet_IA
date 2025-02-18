@@ -8,6 +8,9 @@ Enemy::Enemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
     detectionRadius = 100;
     currentState = PATROL;
     bool reversePath = false;
+    textSprite.loadFromFile("../assets/patrol.png");
+    sprite.setScale({ 5,5 });
+    sprite.setTexture(textSprite);
     
 }
 
@@ -48,8 +51,7 @@ bool Enemy::detectPlayer(Vector2f playerPos) {
     return (distance < detectionRadius);
 }
 void Enemy::rayCasting(Grid& grid, RenderWindow& window) {
-    std::cout << "Primary Cone: " << m_primaryCone.getPointCount() << " points" << std::endl;
-    std::cout << "Secondary Cone: " << m_secondaryCone.getPointCount() << " points" << std::endl;
+    
     float fov = 40.f;
     int numRays = 30;
     float maxDistancePrimary = 150.0f;
@@ -137,6 +139,7 @@ void Enemy::patrol() {
         e_direction = direction;
     }
     shape.move(direction*SPEED);
+    sprite.move(direction*SPEED);
     
 }
 
@@ -150,7 +153,8 @@ void Enemy::chase(Vector2f playerPos) {
         e_direction = direction;
     }
 
-    shape.setPosition(pos);
+    shape.move(direction*SPEED);
+    sprite.move(direction * SPEED);
 }
 
 void Enemy::search(sf::Vector2f lastPlayerPos, float deltaTime) {

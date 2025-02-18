@@ -6,8 +6,10 @@
 using namespace sf;
 class Entity {
 public:
-    sf::RectangleShape shape;
-    sf::Vector2f velocity;
+    RectangleShape shape;
+    Vector2f velocity;
+    Sprite sprite;
+    Texture textSprite;
     int health;
     Vector2f pos;
 

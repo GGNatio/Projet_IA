@@ -6,9 +6,14 @@
 Player::Player(float x, float y, int hp) : Entity(x, y, sf::Color::Blue, hp), attackTimer(0.f) {
     pos = { x,y };
     shape.setSize({ 20,20 });
+    textSprite.loadFromFile("../assets/perso.png");
+    sprite.setScale({ 0.25f,0.25f });
+    sprite.setTexture(textSprite);
+    sprite.setPosition(pos.x-shape.getSize().x, pos.y - shape.getSize().y);
 }
 
 void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, sf::Vector2f playerPos) {
+    
     sf::Vector2f movement(0.f, 0.f);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) movement.y -= SPEED * deltaTime;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) movement.y += SPEED * deltaTime;
@@ -17,6 +22,7 @@ void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, s
 
     sf::Vector2f newPosition = shape.getPosition() + movement;
     sf::FloatRect newBounds(newPosition, shape.getSize());
+    
 
     auto isWalkable = [&](float x, float y) {
         int gridX = static_cast<int>(x / CELL_SIZE);
@@ -29,7 +35,10 @@ void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, s
         isWalkable(newBounds.left - 2, newBounds.top + newBounds.height + 2) &&
         isWalkable(newBounds.left + newBounds.width + 2, newBounds.top + newBounds.height + 2)) {
         shape.move(movement);
+        sprite.move(movement);
         pos = shape.getPosition();
+        
+        
     }
 
     attackTimer += deltaTime;

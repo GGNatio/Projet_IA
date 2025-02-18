@@ -57,10 +57,11 @@ int main() {
         window.clear();
         grid.draw(window);
         window.draw(enemy1.circle);
+        window.draw(player.sprite);
         window.draw(player.shape);
         for (const auto& enemy : enemies) {
             if (enemy->isAlive()) {
-                window.draw(enemy->shape);
+                window.draw(enemy->sprite);
             }
         }
         window.display();
