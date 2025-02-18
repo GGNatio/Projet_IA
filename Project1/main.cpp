@@ -40,7 +40,7 @@ int main() {
     while (window.isOpen()) {
         sf::Time dt = clock.restart();
         float deltaTime = dt.asSeconds();
-        cout << target.x << endl;
+        
         target = { (int)player.pos.x / CELL_SIZE,(int)player.pos.y / CELL_SIZE };
         sf::Event event;
         while (window.pollEvent(event)) {
