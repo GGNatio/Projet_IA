@@ -13,6 +13,7 @@ public:
 
     Player(float x, float y, int hp);
     void attack(std::vector<Entity*> enemies);
+    void rayCasting(Grid& grid, RenderWindow& window);
     void update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, sf::Vector2f playerPos) override;
 };
 

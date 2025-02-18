@@ -21,7 +21,7 @@ std::vector<sf::Vector2i> Pathfinding::findPath(Grid& grid, sf::Vector2i start, 
     std::unordered_map<sf::Vector2i, Node*, Vector2iHash> allNodes;
     std::vector<sf::Vector2i> directions = {
         {0, 1}, {1, 0}, {0, -1}, {-1, 0},
-        {-1, -1}, {1, -1}, {1, 1}, {-1, 1}
+        
     };
 
     Node* startNode = new Node(start);

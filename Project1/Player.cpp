@@ -38,7 +38,9 @@ void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, s
         attackTimer = 0.f;
     }
 }
+void Player::rayCasting(Grid& grid, RenderWindow& window) {
 
+}
 void Player::attack(std::vector<Entity*>enemies) {
 	for (auto& enemy : enemies) {
         if (enemy = dynamic_cast<Enemy*>(enemy)) {
