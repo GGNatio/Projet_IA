@@ -3,9 +3,32 @@
 
 #include <SFML/Graphics.hpp>
 #include "Grid.hpp"
+#include <unordered_map>
+#include <string>
+#include <iostream>
+#include <memory>
 using namespace sf;
+
+class Blackboard {
+private:
+    std::unordered_map<std::string, int> data;
+public:
+    sf::Vector2f target;
+    sf::RectangleShape shape;
+    sf::Vector2f pos;
+    sf::Vector2f initialPos;
+    bool fleeing = false;
+    void SetValue(const std::string& key, int value) {
+        data[key] = value;
+    }
+    int GetValue(const std::string& key) {
+        return data[key];
+    }
+};
+
 class Entity {
 public:
+    Blackboard blackboard;
     RectangleShape shape;
     Vector2f velocity;
     

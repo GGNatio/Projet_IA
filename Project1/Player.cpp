@@ -69,6 +69,8 @@ void Player::attack(std::vector<Entity*>enemies) {
         if (enemy = dynamic_cast<Entity*>(enemy)) {
             if (enemy->isAlive() && atkRadius.getGlobalBounds().intersects(enemy->shape.getGlobalBounds())) {
                 enemy->takeDamage(DAMAGE);
+                enemy->blackboard.target = pos;
+                enemy->blackboard.fleeing = true;
                 std::cout << "Enemy HP: " << enemy->health << std::endl;
             }
         }

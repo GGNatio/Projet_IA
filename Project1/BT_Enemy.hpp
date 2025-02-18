@@ -2,29 +2,18 @@
 #define BT_ENEMY_HPP
 
 #include "Entity.hpp"
-#include <unordered_map>
-#include <string>
-#include <iostream>
-#include <memory>
 
-class Blackboard {
-private:
-    std::unordered_map<std::string, int> data;
+class Projectile {
 public:
-    sf::Vector2f initialPos;
-    Vector2f e_direction;
-    float detectionRadius;
-    std::vector<std::shared_ptr<Projectile>> projectiles;
-    float shootTimer = 0;
-    float shootCd = 1;
-    ConvexShape m_primaryCone;
-    ConvexShape m_secondaryCone;
-    void SetValue(const std::string& key, int value) {
-        data[key] = value;
-    }
-    int GetValue(const std::string& key) {
-        return data[key];
-    }
+    bool state = true;
+    sf::CircleShape shape;
+    sf::Vector2f target = { 0,0 };
+    sf::Vector2f direction;
+    float distance = 0;
+
+    Projectile(sf::Vector2f targ, sf::Vector2f originPos);
+
+    void update(std::vector<Entity*> players, Grid& grid);
 };
 
 enum class NodeState { SUCCESS, FAILURE, RUNNING };
@@ -32,7 +21,7 @@ enum class NodeState { SUCCESS, FAILURE, RUNNING };
 class BTNode {
 public:
     virtual ~BTNode() = default;
-    virtual NodeState execute(Blackboard& blackboard, float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) = 0;
+    virtual NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) = 0;
 };
 
 class SequenceNode : public BTNode {
@@ -42,9 +31,9 @@ public:
     void AddChild(std::unique_ptr<BTNode> child) {
         children.push_back(std::move(child));
     }
-    NodeState execute(Blackboard& blackboard, float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) override {
+    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
         for (auto& child : children) {
-            if (child->execute(blackboard, deltaTime, grid, players, playerPos) == NodeState::FAILURE) {
+            if (child->execute(blackboard, shape, players, projectiles) == NodeState::FAILURE) {
                 return NodeState::FAILURE;
             }
         }
@@ -56,14 +45,14 @@ class SelectorNode : public BTNode {
 private:
     std::vector<std::unique_ptr<BTNode>> children;
 public:
-    SelectorNode();
+    SelectorNode(Blackboard& blackboard);
 
     void AddChild(std::unique_ptr<BTNode> child) {
         children.push_back(std::move(child));
     }
-    NodeState execute(Blackboard& blackboard, float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) override {
+    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
         for (auto& child : children) {
-            if (child->execute(blackboard, deltaTime, grid, players, playerPos) == NodeState::SUCCESS) {
+            if (child->execute(blackboard, shape, players, projectiles) == NodeState::SUCCESS) {
                 return NodeState::SUCCESS;
             }
         }
@@ -78,7 +67,7 @@ private:
     int expectedValue;
 public:
     ConditionNode(Blackboard& bb, const std::string& key, int value) : blackboard(bb), key(key), expectedValue(value) {}
-    NodeState execute(Blackboard& blackboard, float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) override {
+    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
         return (blackboard.GetValue(key) == expectedValue) ? NodeState::SUCCESS : NodeState::FAILURE;
     }
 };
@@ -88,27 +77,13 @@ private:
     std::string actionName;
 public:
     ActionNode(std::string name);
-    NodeState execute(Blackboard& blackboard, float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) override;
+    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override;
 };
 
-
-class Projectile {
-public:
-    bool state = true;
-    sf::CircleShape shape;
-    sf::Vector2f target = {0,0};
-    sf::Vector2f direction;
-    float distance = 0;
-
-    Projectile(sf::Vector2f targ, sf::Vector2f originPos);
-
-    void update(std::vector<Entity*> players, Grid& grid);
-};
 
 class BTEnemy : public Entity {
 public:
-    Blackboard blackboard;
-    std::unique_ptr<SelectorNode> root = std::make_unique<SelectorNode>();
+    std::unique_ptr<SelectorNode> root = std::make_unique<SelectorNode>(blackboard);
     sf::Vector2f initialPos;
     Vector2f e_direction;
     float detectionRadius;
@@ -121,10 +96,10 @@ public:
     
 	void update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) override;
     void rayCasting(Grid& grid, RenderWindow& window) override;
-    void movement();
+    //void movement();
     bool detectPlayer(sf::Vector2f playerPos);
-    void shoot(std::vector<Entity*> players);
-    void getAway();
+    //void shoot(std::vector<Entity*> players);
+    //void getAway();
 };
 
 
