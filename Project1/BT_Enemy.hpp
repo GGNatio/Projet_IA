@@ -2,30 +2,26 @@
 #define BT_ENEMY_HPP
 
 #include "Entity.hpp"
-#include <unordered_map>
-#include <string>
-#include <iostream>
-#include <memory>
+
+class Projectile {
+public:
+    bool state = true;
+    sf::CircleShape shape;
+    sf::Vector2f target = { 0,0 };
+    sf::Vector2f direction;
+    float distance = 0;
+
+    Projectile(sf::Vector2f targ, sf::Vector2f originPos);
+
+    void update(std::vector<Entity*> players, Grid& grid);
+};
 
 enum class NodeState { SUCCESS, FAILURE, RUNNING };
 
 class BTNode {
 public:
     virtual ~BTNode() = default;
-    virtual NodeState execute() = 0;
-};
-
-
-class Blackboard {
-private:
-    std::unordered_map<std::string, int> data;
-public:
-    void SetValue(const std::string& key, int value) {
-        data[key] = value;
-    }
-    int GetValue(const std::string& key) {
-        return data[key];
-    }
+    virtual NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) = 0;
 };
 
 class SequenceNode : public BTNode {
@@ -35,9 +31,9 @@ public:
     void AddChild(std::unique_ptr<BTNode> child) {
         children.push_back(std::move(child));
     }
-    NodeState execute() override {
+    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
         for (auto& child : children) {
-            if (child->execute() == NodeState::FAILURE) {
+            if (child->execute(blackboard, shape, players, projectiles) == NodeState::FAILURE) {
                 return NodeState::FAILURE;
             }
         }
@@ -49,12 +45,14 @@ class SelectorNode : public BTNode {
 private:
     std::vector<std::unique_ptr<BTNode>> children;
 public:
+    SelectorNode(Blackboard& blackboard);
+
     void AddChild(std::unique_ptr<BTNode> child) {
         children.push_back(std::move(child));
     }
-    NodeState execute() override {
+    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
         for (auto& child : children) {
-            if (child->execute() == NodeState::SUCCESS) {
+            if (child->execute(blackboard, shape, players, projectiles) == NodeState::SUCCESS) {
                 return NodeState::SUCCESS;
             }
         }
@@ -62,34 +60,30 @@ public:
     }
 };
 
-//class ConditionNode : public BTNode {
-//private:
-//    Blackboard& blackboard;
-//    std::string key;
-//    int expectedValue;
-//public:
-//    ConditionNode(Blackboard& bb, const std::string& key, int value) : blackboard(bb), key(key), expectedValue(value) {}
-//    NodeState execute() override {
-//        return (blackboard.GetValue(key) == expectedValue) ? NodeState::SUCCESS : NodeState::FAILURE;
-//    }
-//};
-
-class Projectile {
+class ConditionNode : public BTNode {
+private:
+    Blackboard& blackboard;
+    std::string key;
+    int expectedValue;
 public:
-    bool state = true;
-    sf::CircleShape shape;
-    sf::Vector2f target = {0,0};
-    sf::Vector2f direction;
-    float distance = 0;
-
-    Projectile(sf::Vector2f targ, sf::Vector2f originPos);
-
-    void update(std::vector<Entity*> players, Grid& grid);
+    ConditionNode(Blackboard& bb, const std::string& key, int value) : blackboard(bb), key(key), expectedValue(value) {}
+    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
+        return (blackboard.GetValue(key) == expectedValue) ? NodeState::SUCCESS : NodeState::FAILURE;
+    }
 };
+
+class ActionNode : public BTNode {
+private:
+    std::string actionName;
+public:
+    ActionNode(std::string name);
+    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override;
+};
+
 
 class BTEnemy : public Entity {
 public:
-    Blackboard blackboard;
+    std::unique_ptr<SelectorNode> root = std::make_unique<SelectorNode>(blackboard);
     sf::Vector2f initialPos;
     Vector2f e_direction;
     float detectionRadius;
@@ -102,10 +96,10 @@ public:
     
 	void update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) override;
     void rayCasting(Grid& grid, RenderWindow& window) override;
-    void movement();
+    //void movement();
     bool detectPlayer(sf::Vector2f playerPos);
-    void shoot(std::vector<Entity*> players);
-    void getAway();
+    //void shoot(std::vector<Entity*> players);
+    //void getAway();
 };
 
 
