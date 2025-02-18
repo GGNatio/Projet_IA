@@ -7,25 +7,32 @@
 #include <iostream>
 #include <memory>
 
-enum class NodeState { SUCCESS, FAILURE, RUNNING };
-
-class BTNode {
-public:
-    virtual ~BTNode() = default;
-    virtual NodeState execute() = 0;
-};
-
-
 class Blackboard {
 private:
     std::unordered_map<std::string, int> data;
 public:
+    sf::Vector2f initialPos;
+    Vector2f e_direction;
+    float detectionRadius;
+    std::vector<std::shared_ptr<Projectile>> projectiles;
+    float shootTimer = 0;
+    float shootCd = 1;
+    ConvexShape m_primaryCone;
+    ConvexShape m_secondaryCone;
     void SetValue(const std::string& key, int value) {
         data[key] = value;
     }
     int GetValue(const std::string& key) {
         return data[key];
     }
+};
+
+enum class NodeState { SUCCESS, FAILURE, RUNNING };
+
+class BTNode {
+public:
+    virtual ~BTNode() = default;
+    virtual NodeState execute(Blackboard& blackboard, float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) = 0;
 };
 
 class SequenceNode : public BTNode {
@@ -35,9 +42,9 @@ public:
     void AddChild(std::unique_ptr<BTNode> child) {
         children.push_back(std::move(child));
     }
-    NodeState execute() override {
+    NodeState execute(Blackboard& blackboard, float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) override {
         for (auto& child : children) {
-            if (child->execute() == NodeState::FAILURE) {
+            if (child->execute(blackboard, deltaTime, grid, players, playerPos) == NodeState::FAILURE) {
                 return NodeState::FAILURE;
             }
         }
@@ -49,12 +56,14 @@ class SelectorNode : public BTNode {
 private:
     std::vector<std::unique_ptr<BTNode>> children;
 public:
+    SelectorNode();
+
     void AddChild(std::unique_ptr<BTNode> child) {
         children.push_back(std::move(child));
     }
-    NodeState execute() override {
+    NodeState execute(Blackboard& blackboard, float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) override {
         for (auto& child : children) {
-            if (child->execute() == NodeState::SUCCESS) {
+            if (child->execute(blackboard, deltaTime, grid, players, playerPos) == NodeState::SUCCESS) {
                 return NodeState::SUCCESS;
             }
         }
@@ -62,17 +71,26 @@ public:
     }
 };
 
-//class ConditionNode : public BTNode {
-//private:
-//    Blackboard& blackboard;
-//    std::string key;
-//    int expectedValue;
-//public:
-//    ConditionNode(Blackboard& bb, const std::string& key, int value) : blackboard(bb), key(key), expectedValue(value) {}
-//    NodeState execute() override {
-//        return (blackboard.GetValue(key) == expectedValue) ? NodeState::SUCCESS : NodeState::FAILURE;
-//    }
-//};
+class ConditionNode : public BTNode {
+private:
+    Blackboard& blackboard;
+    std::string key;
+    int expectedValue;
+public:
+    ConditionNode(Blackboard& bb, const std::string& key, int value) : blackboard(bb), key(key), expectedValue(value) {}
+    NodeState execute(Blackboard& blackboard, float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) override {
+        return (blackboard.GetValue(key) == expectedValue) ? NodeState::SUCCESS : NodeState::FAILURE;
+    }
+};
+
+class ActionNode : public BTNode {
+private:
+    std::string actionName;
+public:
+    ActionNode(std::string name);
+    NodeState execute(Blackboard& blackboard, float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) override;
+};
+
 
 class Projectile {
 public:
@@ -90,6 +108,7 @@ public:
 class BTEnemy : public Entity {
 public:
     Blackboard blackboard;
+    std::unique_ptr<SelectorNode> root = std::make_unique<SelectorNode>();
     sf::Vector2f initialPos;
     Vector2f e_direction;
     float detectionRadius;

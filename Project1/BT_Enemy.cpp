@@ -1,5 +1,30 @@
 #include "BT_Enemy.hpp"
 
+SelectorNode::SelectorNode() {
+    std::unique_ptr<SequenceNode> sequence = std::make_unique<SequenceNode>();
+    sequence->AddChild(std::make_unique<ActionNode>("movement"));
+    sequence->AddChild(std::make_unique<ConditionNode>("PlayerDetected", 1));
+    sequence->AddChild(std::make_unique<ActionNode>("shoot"));
+    AddChild(std::move(sequence));
+    AddChild(std::make_unique<ActionNode>("getAway"));
+}
+
+ActionNode::ActionNode(std::string name) : actionName(name) {}
+
+NodeState ActionNode::execute(Blackboard& blackboard, float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) {
+    if (actionName == "shoot") {
+        //shoot(players);
+        //projectiles.emplace_back(std::make_shared<Projectile>(players[0]->pos, pos));
+    }
+    if (actionName == "movement") {
+        //movement();
+    }
+    if (actionName == "getAway") {
+        //getAway();
+    }
+    return NodeState::SUCCESS;
+}
+
 Projectile::Projectile(sf::Vector2f targ, sf::Vector2f originPos) : target(targ) {
     direction = target - originPos;
     distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -152,4 +177,10 @@ void BTEnemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, 
             }
         }
     }
+    if (detectPlayer(playerPos)) {
+        blackboard.SetValue("PlayerDetected", 1);
+    }
+    else (blackboard.SetValue("PlayerDetected", 0));
+
+    root->execute(blackboard, deltaTime, grid, players, playerPos);
 }
