@@ -91,15 +91,17 @@ class BTEnemy : public Entity {
 public:
     Blackboard blackboard;
     sf::Vector2f initialPos;
+    Vector2f e_direction;
     float detectionRadius;
     std::vector<std::shared_ptr<Projectile>> projectiles;
     float shootTimer = 0;
     float shootCd = 1;
-
+    ConvexShape m_primaryCone;
+    ConvexShape m_secondaryCone;
 	BTEnemy(float x, float y, int hp);
-
+    
 	void update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) override;
-
+    void rayCasting(Grid& grid, RenderWindow& window) override;
     void movement();
     bool detectPlayer(sf::Vector2f playerPos);
     void shoot(std::vector<Entity*> players);
