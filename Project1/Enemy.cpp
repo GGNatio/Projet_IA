@@ -18,6 +18,7 @@ void Enemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf
     switch (currentState) {
     case PATROL: {
         
+
         patrol(grid);
         if (detectPlayer(players[0]->pos)) {
             lastPlayerPosition = players[0]->pos;

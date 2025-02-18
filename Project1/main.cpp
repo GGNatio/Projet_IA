@@ -2,6 +2,7 @@
 #include "Player.hpp"
 #include "PathFinding.hpp"
 #include "Enemy.hpp"
+#include "BT_Enemy.hpp"
 #include "Grid.hpp"
 #include "A_Ennemy.hpp"
 #include <vector>
@@ -20,11 +21,14 @@ int main() {
     players.push_back(&player);
     std::vector<Entity*> enemies;
     Enemy enemy1(375,380,20);
-    A_Ennemy enemy2(500,100,20);
-    //Enemy enemy3(300,100,20);
+
+    BTEnemy btEnemy(600.f,300.f,20);
+    
+    enemies.push_back(&btEnemy);
     enemies.push_back(&enemy1);
+    A_Ennemy enemy2(500,100,20);
     enemies.push_back(&enemy2);
-    /*enemies.push_back(&enemy3);*/
+    
     Grid grid;
     grid.loadFromFile("map.txt");
     Pathfinding path;
@@ -44,6 +48,12 @@ int main() {
                 window.close();
         }
 
+        for (int i = 0; i < enemies.size(); i++) {
+            if (!enemies[i]->isAlive()) {
+                enemies.erase(enemies.begin() + i);
+            }
+        }
+
         player.update(deltaTime, grid, enemies, player.pos);
         view.setCenter(player.shape.getPosition());
         window.setView(view);
@@ -59,10 +69,14 @@ int main() {
         window.draw(enemy1.circle);
         window.draw(player.sprite);
         window.draw(player.shape);
+        window.draw(player.atkRadius);
         for (const auto& enemy : enemies) {
             if (enemy->isAlive()) {
                 window.draw(enemy->sprite);
             }
+        }
+        for (auto& projectile : btEnemy.projectiles) {
+            window.draw(projectile->shape);
         }
         window.display();
     }
