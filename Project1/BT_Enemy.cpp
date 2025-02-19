@@ -34,9 +34,9 @@ NodeState ActionNode::execute(Blackboard& blackboard, sf::RectangleShape& shape,
             currentWaypoint = (currentWaypoint + 1) % 4;
         }
         else {
-            direction /= distance;
-            //blackboard.pos += direction * 0.7f;
-            shape.setPosition(shape.getPosition() + direction * 0.7f);
+        direction /= distance;
+        //blackboard.pos += direction * 0.7f;
+        shape.setPosition(shape.getPosition() + direction * 0.7f);
         }
 
         shape.move(direction);
@@ -44,7 +44,7 @@ NodeState ActionNode::execute(Blackboard& blackboard, sf::RectangleShape& shape,
     if (actionName == "getAway") {
         //getAway();
         //sf::Vector2f target = players[0]->pos;
-        sf::Vector2f direction = blackboard.target - /*blackboard.pos*/shape.getPosition();
+        sf::Vector2f direction = -(blackboard.target - /*blackboard.pos*/shape.getPosition());
         float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
         if (distance < 5.0f) {
@@ -53,7 +53,7 @@ NodeState ActionNode::execute(Blackboard& blackboard, sf::RectangleShape& shape,
         else {
             direction /= distance;
             //blackboard.pos += direction * 0.7f;
-            shape.setPosition(shape.getPosition() + direction * 0.7f);
+            shape.setPosition(shape.getPosition() + direction * 3.f);
         }
 
         shape.move(direction);
@@ -232,10 +232,14 @@ void BTEnemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, 
 
     if (blackboard.fleeing) {
         blackboard.SetValue("getAway", 1);
+        blackboard.fleeingTimer += deltaTime;
+        if (blackboard.fleeingTimer > 0.5f) {
+            blackboard.fleeing = false;
+        }
     }
     else {
         blackboard.SetValue("getAway", 0);
+        blackboard.fleeingTimer = 0;
     }
-
     root->execute(blackboard, shape, players, projectiles);
 }
