@@ -11,6 +11,8 @@ public:
     static constexpr float ATTACK_COOLDOWN = 0.5f;
     float attackTimer;
     sf::CircleShape atkRadius;
+    float atkAnimationToggle = false;
+    float atkAnimationTimer = 0;
 
     Player(float x, float y, int hp);
     void attack(std::vector<Entity*> enemies);

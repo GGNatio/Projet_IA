@@ -77,7 +77,7 @@ void Projectile::update(std::vector<Entity*> players, Grid& grid) {
 
     if (players[0]->shape.getGlobalBounds().intersects(shape.getGlobalBounds())) {
         state = false;
-        players[0]->health -= 1;
+        players[0]->takeDamage(1);
         std::cout << "hit" << std::endl;
     }
 
@@ -92,7 +92,7 @@ BTEnemy::BTEnemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
     pos = { x,y };
     initialPos = { x,y };
     shape.setPosition(pos);
-    detectionRadius = 1000;
+    detectionRadius = 300;
     textSprite.loadFromFile("../assets/blob.png");
     shape.setTexture(&textSprite);
 };
