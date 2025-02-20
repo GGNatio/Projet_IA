@@ -32,6 +32,7 @@ public:
     Blackboard blackboard;
     RectangleShape shape;
     Vector2f velocity;
+    sf::Vector2f initialPos;
     
     Texture textSprite;
     int health;

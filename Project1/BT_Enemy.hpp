@@ -84,7 +84,6 @@ public:
 class BTEnemy : public Entity {
 public:
     std::unique_ptr<SelectorNode> root = std::make_unique<SelectorNode>(blackboard);
-    sf::Vector2f initialPos;
     Vector2f e_direction;
     float detectionRadius;
     std::vector<std::shared_ptr<Projectile>> projectiles;
