@@ -17,6 +17,8 @@ public:
     sf::RectangleShape shape;
     sf::Vector2f pos;
     sf::Vector2f initialPos;
+    sf::Vector2f previousPos;
+    bool wallCollision = false;
     bool fleeing = false;
     float fleeingTimer = 0;
     void SetValue(const std::string& key, int value) {

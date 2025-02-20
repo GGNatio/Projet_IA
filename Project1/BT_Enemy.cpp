@@ -9,25 +9,29 @@ SelectorNode::SelectorNode(Blackboard& blackboard) {
     sequence->AddChild(std::make_unique<ActionNode>("shoot"));
     std::unique_ptr<SequenceNode> sequence2 = std::make_unique<SequenceNode>();
     sequence2->AddChild(std::make_unique<ConditionNode>(blackboard, "getAway", 1));
+    sequence2->AddChild(std::make_unique<ConditionNode>(blackboard, "wallCollision", 0));
     sequence2->AddChild(std::make_unique<ActionNode>("getAway"));
+    std::unique_ptr<SequenceNode> sequence3 = std::make_unique<SequenceNode>();
+    sequence3->AddChild(std::make_unique<ConditionNode>(blackboard, "wallCollision", 1));
+    sequence3->AddChild(std::make_unique<ActionNode>("wallCollision"));
     AddChild(std::move(sequence));
     AddChild(std::move(sequence2));
+    AddChild(std::move(sequence3));
 }
 
 ActionNode::ActionNode(std::string name) : actionName(name) {}
 
-NodeState ActionNode::execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) {
+NodeState ActionNode::execute(Grid& grid, Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) {
     if (actionName == "shoot") {
-        //shoot(players);
-        projectiles.emplace_back(std::make_shared<Projectile>(players[0]->pos, blackboard.pos));
+        projectiles.emplace_back(std::make_shared<Projectile>(sf::Vector2f(players[0]->pos.x + players[0]->shape.getSize().x/2,
+            players[0]->pos.y + players[0]->shape.getSize().y / 2), sf::Vector2f(blackboard.pos.x + shape.getSize().x/2, blackboard.pos.y + shape.getSize().y/2)));
     }
     if (actionName == "movement") {
-        //movement();
         static int currentWaypoint = 0;
         static sf::Vector2f waypoints[4] = { sf::Vector2f(blackboard.initialPos.x - 150, blackboard.initialPos.y - 150), sf::Vector2f(blackboard.initialPos.x + 150, blackboard.initialPos.y + 150),
         sf::Vector2f(blackboard.initialPos.x - 150, blackboard.initialPos.y + 150), sf::Vector2f(blackboard.initialPos.x + 150, blackboard.initialPos.y - 150) };
         sf::Vector2f target = waypoints[currentWaypoint];
-        sf::Vector2f direction = target - /*blackboard.pos*/shape.getPosition();
+        sf::Vector2f direction = target - shape.getPosition();
         float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
         if (distance < 5.0f) {
@@ -36,15 +40,24 @@ NodeState ActionNode::execute(Blackboard& blackboard, sf::RectangleShape& shape,
         else {
         direction /= distance;
         //blackboard.pos += direction * 0.7f;
-        shape.setPosition(shape.getPosition() + direction * 1.7f);
+        //shape.setPosition(shape.getPosition() + direction * 1.7f);
         }
 
-        //shape.move(direction);
+        shape.move(direction * 1.7f);
+
+        /*if (shape.getGlobalBounds().intersects(grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).shape.getGlobalBounds())) {
+            if (!grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).walkable) {
+                blackboard.wallCollision = true;
+                shape.move(-direction * 1.7f);
+            }
+            else {
+                blackboard.previousPos = shape.getPosition();
+                blackboard.wallCollision = false;
+            }
+        }*/
     }
     if (actionName == "getAway") {
-        //getAway();
-        //sf::Vector2f target = players[0]->pos;
-        sf::Vector2f direction = -(blackboard.target - /*blackboard.pos*/shape.getPosition());
+        sf::Vector2f direction = -(blackboard.target - shape.getPosition());
         float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
         if (distance < 5.0f) {
@@ -53,19 +66,34 @@ NodeState ActionNode::execute(Blackboard& blackboard, sf::RectangleShape& shape,
         else {
             direction /= distance;
             //blackboard.pos += direction * 0.7f;
-            shape.setPosition(shape.getPosition() + direction * 3.f);
+            //shape.setPosition(shape.getPosition() + direction * 3.f);
         }
 
-        shape.move(direction);
+        shape.move(direction * 3.f);
+
+        /*if (shape.getGlobalBounds().intersects(grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).shape.getGlobalBounds())) {
+            if (!grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).walkable) {
+                blackboard.wallCollision = true;
+                shape.move(-direction * 3.f);
+            }
+            else {
+                blackboard.previousPos = shape.getPosition();
+                blackboard.wallCollision = false;
+            }
+        }*/
     }
+
+    /*if (actionName == "wallCollision") {
+        shape.setPosition(blackboard.previousPos);
+    }*/
     return NodeState::SUCCESS;
 }
 
 Projectile::Projectile(sf::Vector2f targ, sf::Vector2f originPos) : target(targ) {
     direction = target - originPos;
     distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-    shape.setPosition(originPos);
     shape.setRadius(10);
+    shape.setPosition(originPos.x - shape.getRadius(), originPos.y - shape.getRadius());
     shape.setFillColor(sf::Color::Red);
 }
 
@@ -78,7 +106,6 @@ void Projectile::update(std::vector<Entity*> players, Grid& grid) {
     if (players[0]->shape.getGlobalBounds().intersects(shape.getGlobalBounds())) {
         state = false;
         players[0]->takeDamage(1);
-        std::cout << "hit" << std::endl;
     }
 
     if (!grid.getCell(shape.getPosition().x/CELL_SIZE, shape.getPosition().y / CELL_SIZE).walkable) {
@@ -202,6 +229,7 @@ bool BTEnemy::detectPlayer(sf::Vector2f playerPos) {
 void BTEnemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) {
     pos = shape.getPosition();
     blackboard.pos = pos;
+    //blackboard.previousPos = pos;
     blackboard.shape = shape;
     //movement();
     for (int i = 0; i < projectiles.size(); i++) {
@@ -241,5 +269,13 @@ void BTEnemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, 
         blackboard.SetValue("getAway", 0);
         blackboard.fleeingTimer = 0;
     }
-    root->execute(blackboard, shape, players, projectiles);
+
+    if (blackboard.wallCollision) {
+        blackboard.SetValue("wallCollision", 1);
+        std::cout << "true" << std::endl;
+    }
+    else {
+        blackboard.SetValue("wallCollision", 0);
+    }
+    root->execute(grid, blackboard, shape, players, projectiles);
 }
