@@ -21,6 +21,7 @@ public:
     bool wallCollision = false;
     bool fleeing = false;
     float fleeingTimer = 0;
+
     void SetValue(const std::string& key, int value) {
         data[key] = value;
     }
@@ -35,6 +36,8 @@ public:
     RectangleShape shape;
     Vector2f velocity;
     sf::Vector2f initialPos;
+    bool gotHit = true;
+    float gotHitTimer = 0;
     
     Texture textSprite;
     int health;

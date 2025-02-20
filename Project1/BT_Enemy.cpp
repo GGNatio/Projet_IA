@@ -43,7 +43,7 @@ NodeState ActionNode::execute(Grid& grid, Blackboard& blackboard, sf::RectangleS
         //shape.setPosition(shape.getPosition() + direction * 1.7f);
         }
 
-        shape.move(direction * 1.7f);
+        shape.move(direction * 2.5f);
 
         /*if (shape.getGlobalBounds().intersects(grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).shape.getGlobalBounds())) {
             if (!grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).walkable) {
@@ -69,7 +69,7 @@ NodeState ActionNode::execute(Grid& grid, Blackboard& blackboard, sf::RectangleS
             //shape.setPosition(shape.getPosition() + direction * 3.f);
         }
 
-        shape.move(direction * 3.f);
+        shape.move(direction * 6.f);
 
         /*if (shape.getGlobalBounds().intersects(grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).shape.getGlobalBounds())) {
             if (!grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).walkable) {
@@ -106,6 +106,7 @@ void Projectile::update(std::vector<Entity*> players, Grid& grid) {
     if (players[0]->shape.getGlobalBounds().intersects(shape.getGlobalBounds())) {
         state = false;
         players[0]->takeDamage(1);
+        players[0]->gotHit = true;
     }
 
     if (!grid.getCell(shape.getPosition().x/CELL_SIZE, shape.getPosition().y / CELL_SIZE).walkable) {
@@ -261,7 +262,7 @@ void BTEnemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, 
     if (blackboard.fleeing) {
         blackboard.SetValue("getAway", 1);
         blackboard.fleeingTimer += deltaTime;
-        if (blackboard.fleeingTimer > 0.5f) {
+        if (blackboard.fleeingTimer > 0.3f) {
             blackboard.fleeing = false;
         }
     }

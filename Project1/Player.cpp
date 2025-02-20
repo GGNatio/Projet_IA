@@ -68,6 +68,16 @@ void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, s
             atkAnimationToggle = false;
         }
     }
+
+    if (gotHit) {
+        gotHitTimer += deltaTime;
+        shape.setFillColor(sf::Color::Red);
+    }
+    if (gotHitTimer > 0.5) {
+        gotHit = false;
+        gotHitTimer = 0;
+        shape.setFillColor(sf::Color::White);
+    }
 }
 void Player::rayCasting(Grid& grid, RenderWindow& window) {
 
@@ -84,5 +94,4 @@ void Player::attack(std::vector<Entity*>enemies) {
         }
 		
 	}
-    std::cout << "Player attacks" << std::endl;
 }
