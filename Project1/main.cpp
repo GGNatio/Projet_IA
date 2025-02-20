@@ -68,7 +68,9 @@ int main() {
         grid.draw(window);
         window.draw(enemy1.circle);
         window.draw(player.shape);
-        window.draw(player.atkRadius);
+        if (player.atkAnimationToggle) {
+            window.draw(player.atkRadius);
+        }
         for (const auto& enemy : enemies) {
             if (enemy->isAlive()) {
                 window.draw(enemy->shape);

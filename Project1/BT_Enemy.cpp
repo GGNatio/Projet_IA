@@ -34,9 +34,9 @@ NodeState ActionNode::execute(Blackboard& blackboard, sf::RectangleShape& shape,
             currentWaypoint = (currentWaypoint + 1) % 4;
         }
         else {
-            direction /= distance;
-            //blackboard.pos += direction * 0.7f;
-            shape.setPosition(shape.getPosition() + direction * 0.7f);
+        direction /= distance;
+        //blackboard.pos += direction * 0.7f;
+        shape.setPosition(shape.getPosition() + direction * 0.7f);
         }
 
         shape.move(direction);
@@ -44,7 +44,7 @@ NodeState ActionNode::execute(Blackboard& blackboard, sf::RectangleShape& shape,
     if (actionName == "getAway") {
         //getAway();
         //sf::Vector2f target = players[0]->pos;
-        sf::Vector2f direction = blackboard.target - /*blackboard.pos*/shape.getPosition();
+        sf::Vector2f direction = -(blackboard.target - /*blackboard.pos*/shape.getPosition());
         float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
         if (distance < 5.0f) {
@@ -53,7 +53,7 @@ NodeState ActionNode::execute(Blackboard& blackboard, sf::RectangleShape& shape,
         else {
             direction /= distance;
             //blackboard.pos += direction * 0.7f;
-            shape.setPosition(shape.getPosition() + direction * 0.7f);
+            shape.setPosition(shape.getPosition() + direction * 3.f);
         }
 
         shape.move(direction);
@@ -77,7 +77,7 @@ void Projectile::update(std::vector<Entity*> players, Grid& grid) {
 
     if (players[0]->shape.getGlobalBounds().intersects(shape.getGlobalBounds())) {
         state = false;
-        players[0]->health -= 1;
+        players[0]->takeDamage(1);
         std::cout << "hit" << std::endl;
     }
 
@@ -92,7 +92,7 @@ BTEnemy::BTEnemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
     pos = { x,y };
     initialPos = { x,y };
     shape.setPosition(pos);
-    detectionRadius = 1000;
+    detectionRadius = 300;
     textSprite.loadFromFile("../assets/blob.png");
     shape.setTexture(&textSprite);
 };
@@ -232,10 +232,14 @@ void BTEnemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, 
 
     if (blackboard.fleeing) {
         blackboard.SetValue("getAway", 1);
+        blackboard.fleeingTimer += deltaTime;
+        if (blackboard.fleeingTimer > 0.5f) {
+            blackboard.fleeing = false;
+        }
     }
     else {
         blackboard.SetValue("getAway", 0);
+        blackboard.fleeingTimer = 0;
     }
-
     root->execute(blackboard, shape, players, projectiles);
 }

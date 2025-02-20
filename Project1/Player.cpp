@@ -59,6 +59,14 @@ void Player::update(float deltaTime, Grid& grid, std::vector<Entity*> enemies, s
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && attackTimer >= ATTACK_COOLDOWN) {
         attack(enemies);
         attackTimer = 0.f;
+        atkAnimationToggle = true;
+    }
+    if (atkAnimationToggle){
+        atkAnimationTimer += deltaTime;
+        if (atkAnimationTimer > 0.5f) {
+            atkAnimationTimer = 0;
+            atkAnimationToggle = false;
+        }
     }
 }
 void Player::rayCasting(Grid& grid, RenderWindow& window) {
