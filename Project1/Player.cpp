@@ -8,7 +8,7 @@ Player::Player(float x, float y, int hp) : Entity(x, y, sf::Color::Blue, hp), at
     pos = { x,y };
     shape.setSize({ 50,50 });
 
-    atkRadius.setRadius(100);
+    atkRadius.setRadius(50);
     atkRadius.setFillColor(sf::Color::Transparent);
     atkRadius.setOutlineColor(sf::Color::Red);
     atkRadius.setOutlineThickness(1);

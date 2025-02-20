@@ -10,6 +10,7 @@ A_Ennemy::A_Ennemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) 
     bool reversePath = false;
     textSprite.loadFromFile("../assets/a_enemy.png");
     shape.setTexture(&textSprite);
+    initialPos = { x,y };
 }
 
 void A_Ennemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) {

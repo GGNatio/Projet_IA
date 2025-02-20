@@ -3,6 +3,7 @@
 
 Enemy::Enemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
 	pos = { x,y };
+    initialPos = { x,y };
     shape.setPosition(pos);
     //shape.setFillColor(sf::Color::Red);
     detectionRadius = 100;
@@ -14,6 +15,7 @@ Enemy::Enemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
 }
 
 void Enemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) {
+    shape.setPosition(pos);
     switch (currentState) {
     case PATROL: {
         
@@ -28,7 +30,7 @@ void Enemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf
     
 
     case CHASE: {
-        
+
         chase(players[0]->pos);
         if (!detectPlayer(players[0]->pos)) {
             
@@ -126,7 +128,8 @@ void Enemy::rayCasting(Grid& grid, RenderWindow& window) {
 void Enemy::patrol(Grid& grid) {
 
     static int currentWaypoint = 0;
-    static sf::Vector2f waypoints[4] = { sf::Vector2f(100, 300), sf::Vector2f(500, 100), sf::Vector2f(100, 300), sf::Vector2f(500, 300) };
+    static sf::Vector2f waypoints[4] = /*{ sf::Vector2f(100, 300), sf::Vector2f(500, 100), sf::Vector2f(100, 300), sf::Vector2f(500, 300) };*/{ sf::Vector2f(initialPos.x - 150, initialPos.y - 150), sf::Vector2f(initialPos.x + 150, initialPos.y + 150),
+        sf::Vector2f(initialPos.x - 150, initialPos.y + 150), sf::Vector2f(initialPos.x + 150, initialPos.y - 150) };
     sf::Vector2f target = waypoints[currentWaypoint];
     sf::Vector2f direction = target - pos;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -136,13 +139,13 @@ void Enemy::patrol(Grid& grid) {
         }
         else {
             direction /= distance;
-            pos += direction * 0.2f;
+            pos += direction * 1.7f;
             e_direction = direction;
         }
-        shape.move(direction * SPEED);
+        //shape.move(direction * SPEED);
         
     }
-    
+
     
 }
 
@@ -157,7 +160,7 @@ void Enemy::chase(Vector2f playerPos) {
     }
 
     shape.move(direction*SPEED);
-    
+
 }
 
 void Enemy::search(sf::Vector2f lastPlayerPos, float deltaTime) {

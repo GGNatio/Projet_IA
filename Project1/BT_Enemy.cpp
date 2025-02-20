@@ -36,10 +36,10 @@ NodeState ActionNode::execute(Blackboard& blackboard, sf::RectangleShape& shape,
         else {
         direction /= distance;
         //blackboard.pos += direction * 0.7f;
-        shape.setPosition(shape.getPosition() + direction * 0.7f);
+        shape.setPosition(shape.getPosition() + direction * 1.7f);
         }
 
-        shape.move(direction);
+        //shape.move(direction);
     }
     if (actionName == "getAway") {
         //getAway();
@@ -95,6 +95,7 @@ BTEnemy::BTEnemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
     detectionRadius = 300;
     textSprite.loadFromFile("../assets/blob.png");
     shape.setTexture(&textSprite);
+    blackboard.initialPos = initialPos;
 };
 void BTEnemy::rayCasting(Grid& grid, RenderWindow& window) {
 
@@ -201,7 +202,6 @@ bool BTEnemy::detectPlayer(sf::Vector2f playerPos) {
 void BTEnemy::update(float deltaTime, Grid& grid, std::vector<Entity*> players, sf::Vector2f playerPos) {
     pos = shape.getPosition();
     blackboard.pos = pos;
-    blackboard.initialPos = initialPos;
     blackboard.shape = shape;
     //movement();
     for (int i = 0; i < projectiles.size(); i++) {
