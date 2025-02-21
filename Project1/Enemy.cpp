@@ -6,7 +6,7 @@ Enemy::Enemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
     initialPos = { x,y };
     shape.setPosition(pos);
     //shape.setFillColor(sf::Color::Red);
-    detectionRadius = 100;
+    detectionRadius = 130;
     currentState = PATROL;
     bool reversePath = false;
     textSprite.loadFromFile("../assets/patrol.png");

@@ -15,18 +15,18 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Jeu SFML - IA Ennemis");
     window.setFramerateLimit(60);
 
-    Player player(400, 400, 10);
+    Player player(100, 100, 10);
     sf::View view(player.shape.getPosition(), sf::Vector2f(640, 480));
     std::vector<Entity*> players;
     players.push_back(&player);
     std::vector<Entity*> enemies;
-    Enemy enemy1(375,380,20);
+    Enemy enemy1(375,500,10);
 
-    BTEnemy btEnemy(600.f,300.f,20);
+    BTEnemy btEnemy(1000.f,300.f,20);
     
     enemies.push_back(&btEnemy);
     enemies.push_back(&enemy1);
-    A_Ennemy enemy2(500,100,20);
+    A_Ennemy enemy2(500,100,4);
     enemies.push_back(&enemy2);
     
     Grid grid;

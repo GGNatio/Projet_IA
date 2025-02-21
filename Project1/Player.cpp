@@ -6,7 +6,7 @@
 #include "BT_Enemy.hpp"
 Player::Player(float x, float y, int hp) : Entity(x, y, sf::Color::Blue, hp), attackTimer(0.f) {
     pos = { x,y };
-    shape.setSize({ 50,50 });
+    shape.setSize({ 35,35 });
 
     atkRadius.setRadius(50);
     atkRadius.setFillColor(sf::Color::Transparent);

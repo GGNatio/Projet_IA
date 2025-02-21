@@ -3,10 +3,13 @@
 SelectorNode::SelectorNode(Blackboard& blackboard) {
     std::unique_ptr<SequenceNode> sequence = std::make_unique<SequenceNode>();
     sequence->AddChild(std::make_unique<ConditionNode>(blackboard, "getAway", 0));
+    sequence->AddChild(std::make_unique<ConditionNode>(blackboard, "PlayerDetected", 0));
     sequence->AddChild(std::make_unique<ActionNode>("movement"));
-    sequence->AddChild(std::make_unique<ConditionNode>(blackboard, "PlayerDetected", 1));
-    sequence->AddChild(std::make_unique<ConditionNode>(blackboard, "Cooldown", 1));
-    sequence->AddChild(std::make_unique<ActionNode>("shoot"));
+    std::unique_ptr<SequenceNode> sequence1 = std::make_unique<SequenceNode>();
+    sequence1->AddChild(std::make_unique<ConditionNode>(blackboard, "PlayerDetected", 1));
+    sequence1->AddChild(std::make_unique<ActionNode>("chase"));
+    sequence1->AddChild(std::make_unique<ConditionNode>(blackboard, "Cooldown", 1));
+    sequence1->AddChild(std::make_unique<ActionNode>("shoot"));
     std::unique_ptr<SequenceNode> sequence2 = std::make_unique<SequenceNode>();
     sequence2->AddChild(std::make_unique<ConditionNode>(blackboard, "getAway", 1));
     sequence2->AddChild(std::make_unique<ConditionNode>(blackboard, "wallCollision", 0));
@@ -15,6 +18,7 @@ SelectorNode::SelectorNode(Blackboard& blackboard) {
     sequence3->AddChild(std::make_unique<ConditionNode>(blackboard, "wallCollision", 1));
     sequence3->AddChild(std::make_unique<ActionNode>("wallCollision"));
     AddChild(std::move(sequence));
+    AddChild(std::move(sequence1));
     AddChild(std::move(sequence2));
     AddChild(std::move(sequence3));
 }
@@ -55,6 +59,18 @@ NodeState ActionNode::execute(Grid& grid, Blackboard& blackboard, sf::RectangleS
                 blackboard.wallCollision = false;
             }
         }
+    }
+    if (actionName == "chase") {
+        sf::Vector2f direction = players[0]->pos - shape.getPosition();
+        float distance = sqrt(direction.x * direction.x + direction.y * direction.y);
+
+        if (distance > 0) {
+            direction /= distance;
+            //shape.setPosition(shape.getPosition() + direction * 0.3f);
+            //e_direction = direction;
+        }
+
+        shape.move(direction * 0.5f);
     }
     if (actionName == "getAway") {
         sf::Vector2f direction = -(blackboard.target - shape.getPosition());
@@ -101,7 +117,8 @@ void Projectile::update(std::vector<Entity*> players, Grid& grid) {
     direction = target - shape.getPosition();
     distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     direction /= distance;
-    shape.setPosition(shape.getPosition() + direction * 4.f);
+    //shape.setPosition(shape.getPosition() + direction * 5.f);
+    shape.move(direction * 5.f);
 
     if (players[0]->shape.getGlobalBounds().intersects(shape.getGlobalBounds())) {
         state = false;
@@ -120,7 +137,7 @@ BTEnemy::BTEnemy(float x, float y, int hp) : Entity(x, y, sf::Color::Red, hp) {
     pos = { x,y };
     initialPos = { x,y };
     shape.setPosition(pos);
-    detectionRadius = 300;
+    detectionRadius = 200;
     textSprite.loadFromFile("../assets/blob.png");
     shape.setTexture(&textSprite);
     blackboard.initialPos = initialPos;
