@@ -21,7 +21,7 @@ enum class NodeState { SUCCESS, FAILURE, RUNNING };
 class BTNode {
 public:
     virtual ~BTNode() = default;
-    virtual NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) = 0;
+    virtual NodeState execute(Grid& grid, Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) = 0;
 };
 
 class SequenceNode : public BTNode {
@@ -31,9 +31,9 @@ public:
     void AddChild(std::unique_ptr<BTNode> child) {
         children.push_back(std::move(child));
     }
-    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
+    NodeState execute(Grid& grid, Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
         for (auto& child : children) {
-            if (child->execute(blackboard, shape, players, projectiles) == NodeState::FAILURE) {
+            if (child->execute(grid, blackboard, shape, players, projectiles) == NodeState::FAILURE) {
                 return NodeState::FAILURE;
             }
         }
@@ -50,9 +50,9 @@ public:
     void AddChild(std::unique_ptr<BTNode> child) {
         children.push_back(std::move(child));
     }
-    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
+    NodeState execute(Grid& grid, Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
         for (auto& child : children) {
-            if (child->execute(blackboard, shape, players, projectiles) == NodeState::SUCCESS) {
+            if (child->execute(grid, blackboard, shape, players, projectiles) == NodeState::SUCCESS) {
                 return NodeState::SUCCESS;
             }
         }
@@ -67,7 +67,7 @@ private:
     int expectedValue;
 public:
     ConditionNode(Blackboard& bb, const std::string& key, int value) : blackboard(bb), key(key), expectedValue(value) {}
-    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
+    NodeState execute(Grid& grid, Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override {
         return (blackboard.GetValue(key) == expectedValue) ? NodeState::SUCCESS : NodeState::FAILURE;
     }
 };
@@ -77,7 +77,7 @@ private:
     std::string actionName;
 public:
     ActionNode(std::string name);
-    NodeState execute(Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override;
+    NodeState execute(Grid& grid, Blackboard& blackboard, sf::RectangleShape& shape, std::vector<Entity*> players, std::vector<std::shared_ptr<Projectile>>& projectiles) override;
 };
 
 
