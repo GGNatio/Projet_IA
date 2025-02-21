@@ -34,7 +34,7 @@ int main() {
     Pathfinding path;
     sf::Clock clock;
     vector<Vector2i> pathList;
-    Vector2i start = { (int)enemy1.pos.x/CELL_SIZE,(int)enemy1.pos.y/CELL_SIZE };
+    Vector2i start = { (int)enemy2.pos.x / CELL_SIZE,(int)enemy2.pos.y / CELL_SIZE };
     Vector2i target;
 
     while (window.isOpen()) {
@@ -61,8 +61,8 @@ int main() {
             enemy->update(deltaTime, grid, players, player.pos);
             enemy->rayCasting(grid,window);
         }
-
-        pathList = path.findPath(grid, start, target);
+        
+        
         enemy2.Path(start, target,path, grid);
         window.clear();
         grid.draw(window);
