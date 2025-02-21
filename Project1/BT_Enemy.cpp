@@ -45,16 +45,16 @@ NodeState ActionNode::execute(Grid& grid, Blackboard& blackboard, sf::RectangleS
 
         shape.move(direction * 2.5f);
 
-        /*if (shape.getGlobalBounds().intersects(grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).shape.getGlobalBounds())) {
+        if (shape.getGlobalBounds().intersects(grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).shape.getGlobalBounds())) {
             if (!grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).walkable) {
                 blackboard.wallCollision = true;
-                shape.move(-direction * 1.7f);
+                //shape.move(-direction * 1.7f);
             }
             else {
                 blackboard.previousPos = shape.getPosition();
                 blackboard.wallCollision = false;
             }
-        }*/
+        }
     }
     if (actionName == "getAway") {
         sf::Vector2f direction = -(blackboard.target - shape.getPosition());
@@ -71,21 +71,21 @@ NodeState ActionNode::execute(Grid& grid, Blackboard& blackboard, sf::RectangleS
 
         shape.move(direction * 6.f);
 
-        /*if (shape.getGlobalBounds().intersects(grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).shape.getGlobalBounds())) {
+        if (shape.getGlobalBounds().intersects(grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).shape.getGlobalBounds())) {
             if (!grid.getCell(shape.getPosition().x / CELL_SIZE, shape.getPosition().y / CELL_SIZE).walkable) {
                 blackboard.wallCollision = true;
-                shape.move(-direction * 3.f);
+                //shape.move(-direction * 3.f);
             }
             else {
                 blackboard.previousPos = shape.getPosition();
                 blackboard.wallCollision = false;
             }
-        }*/
+        }
     }
 
-    /*if (actionName == "wallCollision") {
+    if (actionName == "wallCollision") {
         shape.setPosition(blackboard.previousPos);
-    }*/
+    }
     return NodeState::SUCCESS;
 }
 
