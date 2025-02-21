@@ -53,7 +53,7 @@ std::vector<sf::Vector2i> Pathfinding::findPath(Grid& grid, sf::Vector2i start, 
 
             if (neighborPos.x < 0 || neighborPos.x >= GRID_WIDTH || neighborPos.y < 0 || neighborPos.y >= GRID_HEIGHT)
                 continue;
-            if (!grid.getCell(neighborPos.y, neighborPos.x).walkable) continue;
+            if (!grid.getCell(neighborPos.x, neighborPos.y).walkable) continue;
 
             if ((dir.x != 0 && dir.y != 0) &&
                 (!grid.getCell(current->position.y, neighborPos.x).walkable ) || !grid.getCell(neighborPos.y,current->position.x).walkable )
