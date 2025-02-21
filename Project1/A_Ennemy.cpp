@@ -113,20 +113,12 @@ void A_Ennemy::Path(Vector2i start, Vector2i end, Pathfinding& path, Grid& grid)
 
         if (distance < 5.0f) {
 
-            if (!reversePath && currentPathIndex == currentPath.size() - 1) {
-                reversePath = true;
-            }
-            else if (reversePath && currentPathIndex == 0) {
-                reversePath = false;
-            }
+            
 
             
-            if (reversePath) {
-                currentPathIndex--;
-            }
-            else {
+            
                 currentPathIndex++;
-            }
+           
         }
         else {
             direction /= distance;
