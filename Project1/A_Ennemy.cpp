@@ -112,13 +112,7 @@ void A_Ennemy::Path(Vector2i start, Vector2i end, Pathfinding& path, Grid& grid)
         float distance = sqrt(direction.x * direction.x + direction.y * direction.y);
 
         if (distance < 5.0f) {
-
-            
-
-            
-            
                 currentPathIndex++;
-           
         }
         else {
             direction /= distance;
